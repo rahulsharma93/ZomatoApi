@@ -12,6 +12,8 @@ import com.example.first.firstproject.R;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -24,15 +26,17 @@ public class CategoryActivity extends AppCompatActivity implements CategoryView 
     RecyclerView categoryRecyclerView;
 
     private CategoryAdapter categoryAdapter;
-    private CategoryPresenter categoryPresenter;
+
+    @Inject
+    CategoryPresenter categoryPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
         ButterKnife.bind(this);
-
-        categoryPresenter = new CategoryPresenterImpl(new CategoryInteractorImpl(FirstApplication.get(this).getZomatoService()));
+        FirstApplication.get(this).createCategoryComponent().inject(this);
+       // categoryPresenter = new CategoryPresenterImpl(new CategoryInteractorImpl(FirstApplication.get(this).getZomatoService()));
         categoryPresenter.setView(this);
         categoryPresenter.showList();
 

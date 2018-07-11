@@ -3,23 +3,23 @@ package com.example.first.firstproject;
 import android.app.Activity;
 import android.app.Application;
 
+import com.example.first.firstproject.category.CategoryComponent;
+import com.example.first.firstproject.category.CategoryModule;
 import com.example.first.firstproject.network.GithubService;
+import com.example.first.firstproject.network.NetworkModule;
 import com.example.first.firstproject.network.ZomatoService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 
-import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class FirstApplication extends Application {
 
     private GithubService githubService;
     private ZomatoService zomatoService;
+    private AppComponent appComponent;
+    private CategoryComponent categoryComponent;
 
     public static FirstApplication get(Activity activity) {
         return (FirstApplication) activity.getApplication();
@@ -29,6 +29,7 @@ public class FirstApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        appComponent = createAppComponent();
         GsonBuilder gsonBuilder = new GsonBuilder();
         Gson gson = gsonBuilder.create();
 
@@ -40,9 +41,9 @@ public class FirstApplication extends Application {
             }
         });
 
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+        /*OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(httpLoggingInterceptor)
-                .build();
+                .build();*/
 
         Picasso picasso = new Picasso.Builder(this)
                 .build();
@@ -53,17 +54,29 @@ public class FirstApplication extends Application {
                 .baseUrl("https://api.github.com/")
                 .build();*/
 
-        Retrofit retrofit= new Retrofit.Builder()
+       /* Retrofit retrofit= new Retrofit.Builder()
                 .baseUrl(BuildConfig.ZOMATO_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(okHttpClient)
-                .build();
+                .build();*/
 
         //githubService = retrofit.create(GithubService.class);
-        zomatoService = retrofit.create(ZomatoService.class);
+        //zomatoService =
 
 
+    }
+
+    private AppComponent createAppComponent() {
+        return DaggerAppComponent.builder()
+                .appModule(new AppModule(this))
+                .networkModule(new NetworkModule())
+                .build();
+    }
+
+    public CategoryComponent createCategoryComponent() {
+        categoryComponent = appComponent.plus(new CategoryModule());
+        return categoryComponent;
     }
 
     public GithubService getGithubService() {
