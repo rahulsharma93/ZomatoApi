@@ -6,14 +6,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
-
 import com.example.first.firstproject.FirstApplication;
 import com.example.first.firstproject.R;
-
 import java.util.ArrayList;
-
 import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -30,16 +26,25 @@ public class CategoryActivity extends AppCompatActivity implements CategoryView 
     @Inject
     CategoryPresenter categoryPresenter;
 
+    private ArrayList<CategoryDAO> categoryModelArrayList = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
         ButterKnife.bind(this);
         FirstApplication.get(this).createCategoryComponent().inject(this);
+        init();
        // categoryPresenter = new CategoryPresenterImpl(new CategoryInteractorImpl(FirstApplication.get(this).getZomatoService()));
         categoryPresenter.setView(this);
         categoryPresenter.showList();
 
+    }
+
+    private void init(){
+        categoryRecyclerView.setHasFixedSize(true);
+        categoryAdapter = new CategoryAdapter(categoryModelArrayList, this);
+        categoryRecyclerView.setAdapter(categoryAdapter);
     }
 
     @Override
@@ -54,8 +59,9 @@ public class CategoryActivity extends AppCompatActivity implements CategoryView 
 
     @Override
     public void showList(ArrayList<CategoryDAO> categoryModelArrayList) {
-        categoryAdapter = new CategoryAdapter(categoryModelArrayList, this);
-        categoryRecyclerView.setAdapter(categoryAdapter);
+        this.categoryModelArrayList.clear();
+        this.categoryModelArrayList.addAll(categoryModelArrayList);
+        categoryAdapter.notifyDataSetChanged();
         categoryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
